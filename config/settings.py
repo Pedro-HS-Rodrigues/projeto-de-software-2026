@@ -115,6 +115,13 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
+# HTTPS na hospedagem: ative quando o site tiver certificado.
+SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
+SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_SECURE_HSTS_SECONDS", "0"))
+if env_bool("DJANGO_ATRAS_DE_PROXY", False):
+    # Hospedagens que entregam HTTPS por um proxy informam isso neste cabeçalho.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "menu"
 LOGOUT_REDIRECT_URL = "login"
