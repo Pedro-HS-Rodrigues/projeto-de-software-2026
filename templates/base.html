@@ -1,0 +1,38 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Gestão Comunitária{% endblock %} · AMCNM</title>
+  <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  <header class="topo">
+    <a class="marca" href="{% url 'menu' %}">Gestão Comunitária <span>AMCNM</span></a>
+    {% if user.is_authenticated %}
+      <div class="usuario">
+        <span>Olá, {{ user.get_full_name|default:user.username }}</span>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="botao secundario">Sair</button>
+        </form>
+      </div>
+    {% endif %}
+  </header>
+
+  <main id="conteudo" class="conteudo">
+    {% if messages %}
+      <ul class="mensagens" role="status">
+        {% for message in messages %}
+          <li class="mensagem {{ message.tags }}">
+            {% if message.tags == "success" %}✓{% elif message.tags == "error" %}✕{% elif message.tags == "warning" %}!{% endif %}
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block conteudo %}{% endblock %}
+  </main>
+</body>
+</html>

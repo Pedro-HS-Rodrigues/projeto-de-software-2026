@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "gestao",
 ]
 
 MIDDLEWARE = [
@@ -44,6 +45,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # RF01: toda página exige login, exceto a tela de entrada.
+    "django.contrib.auth.middleware.LoginRequiredMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -111,6 +114,10 @@ CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "menu"
+LOGOUT_REDIRECT_URL = "login"
 
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Fortaleza"
