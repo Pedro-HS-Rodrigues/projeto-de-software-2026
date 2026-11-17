@@ -54,7 +54,7 @@ a { color: var(--cor-primaria); }
 .usuario { display: flex; gap: .75rem; align-items: center; }
 .usuario form { margin: 0; }
 
-.conteudo { max-width: 960px; margin: 0 auto; padding: 1.25rem; }
+.conteudo { max-width: 1120px; margin: 0 auto; padding: 1.25rem; }
 
 h1 { font-size: 1.6rem; margin: .5rem 0 1rem; }
 h2 { font-size: 1.25rem; margin: 1.5rem 0 .75rem; }
@@ -145,12 +145,14 @@ input[type="checkbox"], input[type="radio"] { width: 22px; height: 22px; }
 
 /* Tabelas responsivas */
 .tabela-rolagem { overflow-x: auto; }
+/* No celular a tabela rola para o lado em vez de quebrar nomes e etiquetas */
+.tabela-rolagem th, .tabela-rolagem td { white-space: nowrap; }
 table { width: 100%; border-collapse: collapse; background: #fff; }
 th, td { text-align: left; padding: .6rem .75rem; border-bottom: 1px solid #d9e2ec; vertical-align: middle; }
 th { background: #e9eef4; }
-td .acoes { margin: 0; }
+td .acoes { margin: 0; flex-wrap: nowrap; }
 
-.etiqueta { display: inline-block; padding: .1rem .5rem; border-radius: 4px; font-size: .9rem; font-weight: 600; border: 1px solid; }
+.etiqueta { display: inline-block; padding: .1rem .5rem; border-radius: 4px; font-size: .9rem; font-weight: 600; border: 1px solid; white-space: nowrap; }
 .etiqueta.ok { color: var(--cor-sucesso); }
 .etiqueta.inativo { color: #52606d; }
 .etiqueta.falta { color: var(--cor-erro); }
