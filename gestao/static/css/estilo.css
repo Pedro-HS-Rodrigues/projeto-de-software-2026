@@ -127,6 +127,11 @@ input[type="checkbox"], input[type="radio"] { width: 22px; height: 22px; }
 .campo-check { display: flex; gap: .5rem; align-items: center; min-height: 44px; }
 .campo-check label { font-weight: 600; }
 
+/* Formulários gerados pelo Django (form.as_div) */
+.formulario > div { margin-bottom: 1rem; }
+.formulario label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.formulario .helptext { font-size: .95rem; color: #3e4c59; margin-top: .25rem; }
+
 .erro, .errorlist { color: var(--cor-erro); font-weight: 600; }
 .errorlist { list-style: none; padding: 0; margin: .25rem 0 0; }
 

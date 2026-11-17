@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}{% if participante %}Editar participante{% else %}Novo participante{% endif %}{% endblock %}
+{% block conteudo %}
+<h1>{% if participante %}Editar participante{% else %}Novo participante{% endif %}</h1>
+
+{% if duplicados %}
+  <section class="cartao" aria-labelledby="titulo-duplicados">
+    <h2 id="titulo-duplicados">! Possível cadastro repetido</h2>
+    <p>Encontramos participante(s) com o mesmo nome e data de nascimento:</p>
+    <ul>
+      {% for d in duplicados %}<li>{{ d.nome }} — {{ d.data_nascimento|date:"d/m/Y" }}{% if not d.ativo %} (inativo){% endif %}</li>{% endfor %}
+    </ul>
+    <p>Se for a mesma pessoa, use o cadastro existente. Se for outra pessoa, marque a confirmação e salve.</p>
+  </section>
+{% endif %}
+
+<section class="cartao">
+  <form method="post" class="formulario" novalidate>
+    {% csrf_token %}
+    {{ form.as_div }}
+    <div class="acoes">
+      <button type="submit">Salvar</button>
+      <a class="botao secundario" href="{% url 'participante_lista' %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
