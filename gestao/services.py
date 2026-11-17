@@ -5,6 +5,7 @@ As telas (views) chamam estas funções; elas validam as condições de cada
 operação e usam o ORM (models) para consultar ou gravar os dados.
 """
 from django.db import transaction
+from django.db.models import Prefetch
 
 from .models import Inscricao, Participante, Presenca
 
@@ -120,3 +121,28 @@ def registrar_presencas(encontro, marcacoes):
             Presenca.objects.update_or_create(
                 inscricao=inscricao, encontro=encontro, defaults={"compareceu": compareceu}
             )
+
+
+# ------------------------------------------------------------------- Histórico
+
+def historico_participante(participante):
+    """
+    RF10: inscrições do participante em todas as atividades, cada uma com as
+    frequências registradas (encontros mais recentes primeiro).
+    """
+    presencas = Presenca.objects.select_related("encontro").order_by("-encontro__inicio")
+    inscricoes = participante.inscricoes.select_related("atividade").prefetch_related(
+        Prefetch("presencas", queryset=presencas)
+    )
+    historico = []
+    for inscricao in inscricoes.order_by("atividade__nome"):
+        registros = list(inscricao.presencas.all())
+        historico.append(
+            {
+                "inscricao": inscricao,
+                "presencas": registros,
+                "total_presente": sum(1 for p in registros if p.compareceu),
+                "total_registrado": len(registros),
+            }
+        )
+    return historico

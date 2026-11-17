@@ -10,7 +10,7 @@
 <div class="tabela-rolagem">
   <table>
     <thead>
-      <tr><th scope="col">Participante</th><th scope="col">Frequência</th></tr>
+      <tr><th scope="col">Participante</th><th scope="col">Frequência</th><th scope="col">Histórico</th></tr>
     </thead>
     <tbody>
       {% for inscricao, compareceu in linhas %}
@@ -21,9 +21,10 @@
             {% elif compareceu is False %}<span class="etiqueta falta">— Faltou</span>
             {% else %}<span class="etiqueta inativo">? Não informado</span>{% endif %}
           </td>
+          <td><a class="botao secundario" href="{% url 'participante_detalhe' inscricao.participante.pk %}">Ver histórico<span class="pular"> de {{ inscricao.participante.nome }}</span></a></td>
         </tr>
       {% empty %}
-        <tr><td colspan="2" class="vazio">Nenhum inscrito ativo.</td></tr>
+        <tr><td colspan="3" class="vazio">Nenhum inscrito ativo.</td></tr>
       {% endfor %}
     </tbody>
   </table>

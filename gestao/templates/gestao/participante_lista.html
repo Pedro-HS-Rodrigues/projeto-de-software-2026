@@ -26,12 +26,13 @@
       <tbody>
         {% for p in participantes %}
           <tr>
-            <td>{{ p.nome }}</td>
+            <td><a href="{% url 'participante_detalhe' p.pk %}">{{ p.nome }}</a></td>
             <td>{{ p.data_nascimento|date:"d/m/Y" }}</td>
             <td>{{ p.telefone_contato|default:"—" }}</td>
             <td>{% if p.ativo %}<span class="etiqueta ok">✓ Ativo</span>{% else %}<span class="etiqueta inativo">— Inativo</span>{% endif %}</td>
             <td>
               <div class="acoes">
+                <a class="botao" href="{% url 'participante_detalhe' p.pk %}">Histórico</a>
                 <a class="botao secundario" href="{% url 'participante_editar' p.pk %}">Editar</a>
                 <form method="post" action="{% url 'participante_ativo' p.pk %}">
                   {% csrf_token %}

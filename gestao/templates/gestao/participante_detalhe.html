@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}{{ participante.nome }}{% endblock %}
+{% block conteudo %}
+<h1>{{ participante.nome }}</h1>
+<p>
+  Nascimento: <strong>{{ participante.data_nascimento|date:"d/m/Y" }}</strong>
+  · Telefone: <strong>{{ participante.telefone_contato|default:"não informado" }}</strong>
+  · {% if participante.ativo %}<span class="etiqueta ok">✓ Ativo</span>{% else %}<span class="etiqueta inativo">— Inativo</span>{% endif %}
+</p>
+
+<div class="acoes">
+  <a class="botao secundario" href="{% url 'participante_editar' participante.pk %}">Editar cadastro</a>
+  <a class="botao secundario" href="{% url 'participante_lista' %}">Voltar aos participantes</a>
+</div>
+
+<h2>Histórico de participação</h2>
+{% for item in historico %}
+  <section class="cartao" aria-labelledby="atv-{{ item.inscricao.pk }}">
+    <h3 id="atv-{{ item.inscricao.pk }}">
+      <a href="{% url 'atividade_detalhe' item.inscricao.atividade.pk %}">{{ item.inscricao.atividade.nome }}</a>
+      {% if item.inscricao.ativa %}<span class="etiqueta ok">✓ Inscrição ativa</span>{% else %}<span class="etiqueta inativo">— Inscrição cancelada</span>{% endif %}
+    </h3>
+    <p>Inscrito em {{ item.inscricao.data_inscricao|date:"d/m/Y" }} ·
+      Presente em <strong>{{ item.total_presente }}</strong> de {{ item.total_registrado }} encontro(s) com frequência registrada.</p>
+
+    {% if item.presencas %}
+      <div class="tabela-rolagem">
+        <table>
+          <thead><tr><th scope="col">Encontro</th><th scope="col">Frequência</th></tr></thead>
+          <tbody>
+            {% for p in item.presencas %}
+              <tr>
+                <td>{{ p.encontro.inicio|date:"d/m/Y H:i" }}</td>
+                <td>{% if p.compareceu %}<span class="etiqueta ok">✓ Presente</span>{% else %}<span class="etiqueta falta">— Faltou</span>{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="vazio">Nenhuma frequência registrada nesta atividade ainda.</p>
+    {% endif %}
+  </section>
+{% empty %}
+  <p class="vazio">Este participante ainda não tem inscrições.</p>
+{% endfor %}
+{% endblock %}

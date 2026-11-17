@@ -22,6 +22,12 @@ def participante_lista(request):
     return render(request, "gestao/participante_lista.html", {"participantes": participantes, "termo": termo})
 
 
+def participante_detalhe(request, pk):
+    participante = get_object_or_404(Participante, pk=pk)
+    contexto = {"participante": participante, "historico": services.historico_participante(participante)}
+    return render(request, "gestao/participante_detalhe.html", contexto)
+
+
 def participante_form(request, pk=None):
     participante = get_object_or_404(Participante, pk=pk) if pk else None
     duplicados = []
