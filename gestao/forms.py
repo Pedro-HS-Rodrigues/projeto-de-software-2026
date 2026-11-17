@@ -30,6 +30,20 @@ class ParticipanteForm(forms.ModelForm):
         return nome
 
 
+class InscricaoForm(forms.Form):
+    participante = forms.ModelChoiceField(
+        label="Participante",
+        queryset=Participante.objects.none(),
+        empty_label="Selecione um participante",
+        error_messages={"required": "Selecione um participante para inscrever."},
+    )
+
+    def __init__(self, *args, participantes=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if participantes is not None:
+            self.fields["participante"].queryset = participantes
+
+
 class AtividadeForm(forms.ModelForm):
     class Meta:
         model = Atividade

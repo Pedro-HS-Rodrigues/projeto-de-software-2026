@@ -17,11 +17,12 @@
       <tbody>
         {% for a in atividades %}
           <tr>
-            <td>{{ a.nome }}</td>
+            <td><a href="{% url 'atividade_detalhe' a.pk %}">{{ a.nome }}</a></td>
             <td>{{ a.descricao|default:"—"|truncatechars:80 }}</td>
             <td>{% if a.ativa %}<span class="etiqueta ok">✓ Ativa</span>{% else %}<span class="etiqueta inativo">— Inativa</span>{% endif %}</td>
             <td>
               <div class="acoes">
+                <a class="botao" href="{% url 'atividade_detalhe' a.pk %}">Abrir</a>
                 <a class="botao secundario" href="{% url 'atividade_editar' a.pk %}">Editar</a>
                 <form method="post" action="{% url 'atividade_ativa' a.pk %}">
                   {% csrf_token %}

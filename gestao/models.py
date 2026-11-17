@@ -42,3 +42,35 @@ class Atividade(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class Inscricao(models.Model):
+    """Vínculo do participante com uma atividade, sem repetir o cadastro dele."""
+
+    class Status(models.TextChoices):
+        ATIVA = "ativa", "Ativa"
+        CANCELADA = "cancelada", "Cancelada"
+
+    participante = models.ForeignKey(
+        Participante, on_delete=models.PROTECT, related_name="inscricoes", verbose_name="participante"
+    )
+    atividade = models.ForeignKey(
+        Atividade, on_delete=models.PROTECT, related_name="inscricoes", verbose_name="atividade"
+    )
+    data_inscricao = models.DateTimeField("data da inscrição", auto_now_add=True)
+    status = models.CharField("situação", max_length=10, choices=Status.choices, default=Status.ATIVA)
+
+    class Meta:
+        ordering = ["participante__nome"]
+        verbose_name = "inscrição"
+        verbose_name_plural = "inscrições"
+        constraints = [
+            models.UniqueConstraint(fields=["participante", "atividade"], name="inscricao_unica_por_atividade"),
+        ]
+
+    def __str__(self):
+        return f"{self.participante.nome} em {self.atividade.nome}"
+
+    @property
+    def ativa(self):
+        return self.status == self.Status.ATIVA

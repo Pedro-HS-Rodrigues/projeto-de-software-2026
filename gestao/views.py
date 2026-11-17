@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from . import services
-from .forms import AtividadeForm, ParticipanteForm
-from .models import Atividade, Participante
+from .forms import AtividadeForm, InscricaoForm, ParticipanteForm
+from .models import Atividade, Inscricao, Participante
 
 
 def menu(request):
@@ -78,6 +78,16 @@ def atividade_lista(request):
     return render(request, "gestao/atividade_lista.html", {"atividades": Atividade.objects.all()})
 
 
+def atividade_detalhe(request, pk):
+    atividade = get_object_or_404(Atividade, pk=pk)
+    contexto = {
+        "atividade": atividade,
+        "inscricoes": atividade.inscricoes.select_related("participante"),
+        "form_inscricao": InscricaoForm(participantes=services.participantes_disponiveis(atividade)),
+    }
+    return render(request, "gestao/atividade_detalhe.html", contexto)
+
+
 def atividade_form(request, pk=None):
     atividade = get_object_or_404(Atividade, pk=pk) if pk else None
     form = AtividadeForm(request.POST or None, instance=atividade)
@@ -109,3 +119,33 @@ def atividade_excluir(request, pk):
             messages.success(request, f"Atividade “{atividade.nome}” excluída.")
         return redirect("atividade_lista")
     return render(request, "gestao/confirmar_exclusao.html", {"objeto": atividade, "voltar": "atividade_lista"})
+
+
+# ------------------------------------------------------------------ Inscrições
+
+@require_POST
+def inscricao_criar(request, atividade_pk):
+    atividade = get_object_or_404(Atividade, pk=atividade_pk)
+    form = InscricaoForm(request.POST, participantes=Participante.objects.all())
+    if form.is_valid():
+        try:
+            inscricao = services.inscrever(form.cleaned_data["participante"], atividade)
+        except services.RegraDeNegocioError as erro:
+            messages.error(request, str(erro))
+        else:
+            messages.success(request, f"{inscricao.participante.nome} inscrito(a) em {atividade.nome}.")
+    else:
+        messages.error(request, "Selecione um participante para inscrever.")
+    return redirect("atividade_detalhe", pk=atividade.pk)
+
+
+@require_POST
+def inscricao_cancelar(request, pk):
+    inscricao = get_object_or_404(Inscricao.objects.select_related("participante", "atividade"), pk=pk)
+    try:
+        services.cancelar_inscricao(inscricao)
+    except services.RegraDeNegocioError as erro:
+        messages.error(request, str(erro))
+    else:
+        messages.success(request, f"Inscrição de {inscricao.participante.nome} cancelada. O histórico foi mantido.")
+    return redirect("atividade_detalhe", pk=inscricao.atividade_id)

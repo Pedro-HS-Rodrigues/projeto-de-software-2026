@@ -13,7 +13,11 @@ urlpatterns = [
     # Atividades
     path("atividades/", views.atividade_lista, name="atividade_lista"),
     path("atividades/nova/", views.atividade_form, name="atividade_nova"),
+    path("atividades/<int:pk>/", views.atividade_detalhe, name="atividade_detalhe"),
     path("atividades/<int:pk>/editar/", views.atividade_form, name="atividade_editar"),
     path("atividades/<int:pk>/ativa/", views.atividade_alternar_ativa, name="atividade_ativa"),
     path("atividades/<int:pk>/excluir/", views.atividade_excluir, name="atividade_excluir"),
+    # Inscrições
+    path("atividades/<int:atividade_pk>/inscrever/", views.inscricao_criar, name="inscricao_criar"),
+    path("inscricoes/<int:pk>/cancelar/", views.inscricao_cancelar, name="inscricao_cancelar"),
 ]
