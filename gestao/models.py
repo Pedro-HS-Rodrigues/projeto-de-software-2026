@@ -25,3 +25,20 @@ class Participante(models.Model):
 
     def __str__(self):
         return f"{self.nome} ({self.data_nascimento:%d/%m/%Y})"
+
+
+class Atividade(models.Model):
+    """Atividade oferecida pela associação (oficina, esporte, curso...)."""
+
+    nome = models.CharField("nome", max_length=150)
+    descricao = models.TextField("descrição", blank=True)
+    ativa = models.BooleanField("ativa", default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["nome"]
+        verbose_name = "atividade"
+        verbose_name_plural = "atividades"
+
+    def __str__(self):
+        return self.nome

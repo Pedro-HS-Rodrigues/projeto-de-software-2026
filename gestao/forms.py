@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Participante
+from .models import Atividade, Participante
 
 
 class ParticipanteForm(forms.ModelForm):
@@ -28,3 +28,13 @@ class ParticipanteForm(forms.ModelForm):
         if not nome:
             raise forms.ValidationError("Informe o nome do participante.")
         return nome
+
+
+class AtividadeForm(forms.ModelForm):
+    class Meta:
+        model = Atividade
+        fields = ["nome", "descricao", "ativa"]
+        help_texts = {
+            "descricao": "Opcional. Ex.: dias, horário e público da atividade.",
+            "ativa": "Atividades inativas não recebem novas inscrições.",
+        }

@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from . import services
-from .forms import ParticipanteForm
-from .models import Participante
+from .forms import AtividadeForm, ParticipanteForm
+from .models import Atividade, Participante
 
 
 def menu(request):
@@ -70,3 +70,42 @@ def participante_excluir(request, pk):
             messages.success(request, f"Participante “{participante.nome}” excluído.")
         return redirect("participante_lista")
     return render(request, "gestao/confirmar_exclusao.html", {"objeto": participante, "voltar": "participante_lista"})
+
+
+# ------------------------------------------------------------------ Atividades
+
+def atividade_lista(request):
+    return render(request, "gestao/atividade_lista.html", {"atividades": Atividade.objects.all()})
+
+
+def atividade_form(request, pk=None):
+    atividade = get_object_or_404(Atividade, pk=pk) if pk else None
+    form = AtividadeForm(request.POST or None, instance=atividade)
+    if request.method == "POST" and form.is_valid():
+        salva = form.save()
+        messages.success(request, f"Atividade “{salva.nome}” salva.")
+        return redirect("atividade_lista")
+    return render(request, "gestao/atividade_form.html", {"form": form, "atividade": atividade})
+
+
+@require_POST
+def atividade_alternar_ativa(request, pk):
+    atividade = get_object_or_404(Atividade, pk=pk)
+    atividade.ativa = not atividade.ativa
+    atividade.save(update_fields=["ativa"])
+    situacao = "reativada" if atividade.ativa else "desativada"
+    messages.success(request, f"Atividade “{atividade.nome}” {situacao}.")
+    return redirect("atividade_lista")
+
+
+def atividade_excluir(request, pk):
+    atividade = get_object_or_404(Atividade, pk=pk)
+    if request.method == "POST":
+        try:
+            atividade.delete()
+        except ProtectedError:
+            messages.error(request, "Esta atividade tem histórico e não pode ser excluída. Desative a atividade.")
+        else:
+            messages.success(request, f"Atividade “{atividade.nome}” excluída.")
+        return redirect("atividade_lista")
+    return render(request, "gestao/confirmar_exclusao.html", {"objeto": atividade, "voltar": "atividade_lista"})
