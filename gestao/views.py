@@ -183,3 +183,63 @@ def encontro_excluir(request, pk):
             messages.success(request, "Encontro excluído.")
         return redirect("atividade_detalhe", pk=atividade_pk)
     return render(request, "gestao/confirmar_exclusao.html", {"objeto": encontro, "voltar": reverse("atividade_detalhe", args=[atividade_pk])})
+
+
+# -------------------------------------------------------- Registro de presença
+
+def presenca_selecionar(request):
+    """Tela 2 (parte 1): escolher a atividade e o encontro."""
+    atividades = Atividade.objects.filter(ativa=True)
+    atividade = None
+    encontros = Encontro.objects.none()
+
+    atividade_id = request.GET.get("atividade")
+    if atividade_id:
+        atividade = get_object_or_404(Atividade, pk=atividade_id)
+        encontros = atividade.encontros.filter(status=Encontro.Status.REALIZADO)
+    elif "escolher" in request.GET:
+        messages.error(request, "Selecione uma atividade para continuar.")
+
+    if atividade and "carregar" in request.GET:
+        encontro_id = request.GET.get("encontro")
+        if encontro_id:
+            encontro = get_object_or_404(Encontro, pk=encontro_id, atividade=atividade)
+            return redirect("presenca_registrar", encontro_pk=encontro.pk)
+        messages.error(request, "Selecione um encontro para continuar.")
+
+    contexto = {"atividades": atividades, "atividade": atividade, "encontros": encontros}
+    return render(request, "gestao/presenca_selecionar.html", contexto)
+
+
+def presenca_registrar(request, encontro_pk):
+    """Tela 2 (parte 2): lista de inscritos e marcação manual da frequência."""
+    encontro = get_object_or_404(Encontro.objects.select_related("atividade"), pk=encontro_pk)
+    inscricoes = services.inscritos_do_encontro(encontro)
+
+    if request.method == "POST":
+        marcacoes = {}
+        for chave, valor in request.POST.items():
+            if chave.startswith("presenca_"):
+                try:
+                    marcacoes[int(chave.removeprefix("presenca_"))] = valor
+                except ValueError:
+                    continue
+        try:
+            services.registrar_presencas(encontro, marcacoes)
+        except services.RegraDeNegocioError as erro:
+            messages.error(request, str(erro))
+        else:
+            messages.success(request, "Presenças salvas.")
+            return redirect("presenca_resultado", encontro_pk=encontro.pk)
+
+    frequencias = services.frequencias_do_encontro(encontro)
+    linhas = [(i, frequencias.get(i.pk)) for i in inscricoes]
+    return render(request, "gestao/presenca_form.html", {"encontro": encontro, "linhas": linhas})
+
+
+def presenca_resultado(request, encontro_pk):
+    """Tela 3: confirmação e conferência do que foi registrado."""
+    encontro = get_object_or_404(Encontro.objects.select_related("atividade"), pk=encontro_pk)
+    frequencias = services.frequencias_do_encontro(encontro)
+    linhas = [(i, frequencias.get(i.pk)) for i in services.inscritos_do_encontro(encontro)]
+    return render(request, "gestao/presenca_resultado.html", {"encontro": encontro, "linhas": linhas})

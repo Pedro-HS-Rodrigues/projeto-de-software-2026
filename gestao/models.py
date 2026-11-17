@@ -104,3 +104,31 @@ class Encontro(models.Model):
     @property
     def realizado(self):
         return self.status == self.Status.REALIZADO
+
+
+class Presenca(models.Model):
+    """
+    Frequência de um inscrito em um encontro.
+
+    A ausência de registro significa "frequência não informada", e não falta.
+    """
+
+    inscricao = models.ForeignKey(
+        Inscricao, on_delete=models.PROTECT, related_name="presencas", verbose_name="inscrição"
+    )
+    encontro = models.ForeignKey(
+        Encontro, on_delete=models.PROTECT, related_name="presencas", verbose_name="encontro"
+    )
+    compareceu = models.BooleanField("compareceu")
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "presença"
+        verbose_name_plural = "presenças"
+        constraints = [
+            models.UniqueConstraint(fields=["inscricao", "encontro"], name="presenca_unica_por_encontro"),
+        ]
+
+    def __str__(self):
+        situacao = "presente" if self.compareceu else "faltou"
+        return f"{self.inscricao.participante.nome} — {self.encontro}: {situacao}"

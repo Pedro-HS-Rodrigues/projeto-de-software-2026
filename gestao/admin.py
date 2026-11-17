@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Atividade, Encontro, Inscricao, Participante
+from .models import Atividade, Encontro, Inscricao, Participante, Presenca
 
 
 @admin.register(Participante)
@@ -28,3 +28,9 @@ class InscricaoAdmin(admin.ModelAdmin):
 class EncontroAdmin(admin.ModelAdmin):
     list_display = ["atividade", "inicio", "status"]
     list_filter = ["status", "atividade"]
+
+
+@admin.register(Presenca)
+class PresencaAdmin(admin.ModelAdmin):
+    list_display = ["inscricao", "encontro", "compareceu"]
+    list_filter = ["compareceu", "encontro__atividade"]

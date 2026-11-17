@@ -24,4 +24,8 @@ urlpatterns = [
     path("atividades/<int:atividade_pk>/encontros/novo/", views.encontro_form, name="encontro_novo"),
     path("encontros/<int:pk>/editar/", views.encontro_form, name="encontro_editar"),
     path("encontros/<int:pk>/excluir/", views.encontro_excluir, name="encontro_excluir"),
+    # Registro de presença
+    path("presenca/", views.presenca_selecionar, name="presenca_selecionar"),
+    path("presenca/encontro/<int:encontro_pk>/", views.presenca_registrar, name="presenca_registrar"),
+    path("presenca/encontro/<int:encontro_pk>/resultado/", views.presenca_resultado, name="presenca_resultado"),
 ]

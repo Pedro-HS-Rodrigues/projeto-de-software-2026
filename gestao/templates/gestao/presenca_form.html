@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block titulo %}Registrar presença{% endblock %}
+{% block conteudo %}
+<h1>Registrar presença</h1>
+<p>
+  Atividade: <strong>{{ encontro.atividade.nome }}</strong><br>
+  Encontro: <strong>{{ encontro.inicio|date:"d/m/Y H:i" }}</strong> ({{ encontro.get_status_display }})
+</p>
+
+{% if not encontro.realizado %}
+  <p class="erro" role="alert">
+    ! Este encontro está como “{{ encontro.get_status_display }}”. Para registrar presença,
+    <a href="{% url 'encontro_editar' encontro.pk %}">altere a situação para “Realizado”</a>.
+  </p>
+{% endif %}
+
+{% if linhas %}
+  <form method="post" class="chamada">
+    {% csrf_token %}
+    <p>Marque a frequência de cada inscrito. “Não informado” significa que ainda não foi registrada.</p>
+    {% for inscricao, compareceu in linhas %}
+      <fieldset>
+        <legend>{{ inscricao.participante.nome }}</legend>
+        <div class="opcoes">
+          <label><input type="radio" name="presenca_{{ inscricao.pk }}" value="nao_informado" {% if compareceu is None %}checked{% endif %}> Não informado</label>
+          <label><input type="radio" name="presenca_{{ inscricao.pk }}" value="presente" {% if compareceu is True %}checked{% endif %}> ✓ Presente</label>
+          <label><input type="radio" name="presenca_{{ inscricao.pk }}" value="faltou" {% if compareceu is False %}checked{% endif %}> — Faltou</label>
+        </div>
+      </fieldset>
+    {% endfor %}
+    <div class="acoes">
+      <button type="submit">Salvar presenças</button>
+      <a class="botao secundario" href="{% url 'menu' %}">Voltar ao menu</a>
+    </div>
+  </form>
+{% else %}
+  <p class="vazio">Nenhum participante com inscrição ativa nesta atividade.</p>
+  <div class="acoes">
+    <a class="botao" href="{% url 'atividade_detalhe' encontro.atividade.pk %}">Inscrever participantes</a>
+    <a class="botao secundario" href="{% url 'menu' %}">Voltar ao menu</a>
+  </div>
+{% endif %}
+{% endblock %}

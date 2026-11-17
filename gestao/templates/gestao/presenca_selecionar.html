@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}Registrar presença{% endblock %}
+{% block conteudo %}
+<h1>Registrar presença</h1>
+
+<section class="cartao">
+  <form method="get" class="formulario">
+    <div>
+      <label for="campo-atividade">Atividade</label>
+      <select id="campo-atividade" name="atividade">
+        <option value="">Selecione a atividade</option>
+        {% for a in atividades %}
+          <option value="{{ a.pk }}" {% if atividade and a.pk == atividade.pk %}selected{% endif %}>{{ a.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="acoes">
+      <button type="submit" name="escolher" value="1" class="{% if atividade %}botao secundario{% endif %}">Escolher atividade</button>
+    </div>
+
+    {% if atividade %}
+      <div>
+        <label for="campo-encontro">Encontro</label>
+        <select id="campo-encontro" name="encontro" aria-describedby="ajuda-encontro">
+          <option value="">Selecione o encontro</option>
+          {% for e in encontros %}
+            <option value="{{ e.pk }}">{{ e.inicio|date:"d/m/Y H:i" }}</option>
+          {% endfor %}
+        </select>
+        <p class="helptext" id="ajuda-encontro">
+          Aparecem só os encontros com situação “Realizado”.
+          <a href="{% url 'atividade_detalhe' atividade.pk %}">Ver encontros da atividade</a>
+        </p>
+      </div>
+      <div class="acoes">
+        <button type="submit" name="carregar" value="1">Carregar inscritos</button>
+      </div>
+    {% endif %}
+  </form>
+  <div class="acoes">
+    <a class="botao secundario" href="{% url 'menu' %}">Voltar ao menu</a>
+  </div>
+</section>
+{% endblock %}
