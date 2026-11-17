@@ -74,3 +74,33 @@ class Inscricao(models.Model):
     @property
     def ativa(self):
         return self.status == self.Status.ATIVA
+
+
+class Encontro(models.Model):
+    """Cada encontro (aula, treino, reunião) de uma atividade, para registrar a frequência por data."""
+
+    class Status(models.TextChoices):
+        PREVISTO = "previsto", "Previsto"
+        REALIZADO = "realizado", "Realizado"
+        CANCELADO = "cancelado", "Cancelado"
+
+    atividade = models.ForeignKey(
+        Atividade, on_delete=models.PROTECT, related_name="encontros", verbose_name="atividade"
+    )
+    inicio = models.DateTimeField("data e horário de início")
+    status = models.CharField("situação", max_length=10, choices=Status.choices, default=Status.PREVISTO)
+
+    class Meta:
+        ordering = ["-inicio"]
+        verbose_name = "encontro"
+        verbose_name_plural = "encontros"
+        constraints = [
+            models.UniqueConstraint(fields=["atividade", "inicio"], name="encontro_unico_por_inicio"),
+        ]
+
+    def __str__(self):
+        return f"{self.atividade.nome} — {timezone.localtime(self.inicio):%d/%m/%Y %H:%M}"
+
+    @property
+    def realizado(self):
+        return self.status == self.Status.REALIZADO

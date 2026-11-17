@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Atividade, Participante
+from .models import Atividade, Encontro, Participante
 
 
 class ParticipanteForm(forms.ModelForm):
@@ -52,3 +52,24 @@ class AtividadeForm(forms.ModelForm):
             "descricao": "Opcional. Ex.: dias, horário e público da atividade.",
             "ativa": "Atividades inativas não recebem novas inscrições.",
         }
+
+
+class EncontroForm(forms.ModelForm):
+    class Meta:
+        model = Encontro
+        fields = ["inicio", "status"]
+        widgets = {
+            "inicio": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
+        }
+        help_texts = {"status": "Só é possível registrar presença em encontros realizados."}
+
+    def __init__(self, *args, atividade, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.atividade = atividade
+
+    def clean_inicio(self):
+        inicio = self.cleaned_data["inicio"]
+        repetidos = Encontro.objects.filter(atividade=self.atividade, inicio=inicio).exclude(pk=self.instance.pk)
+        if repetidos.exists():
+            raise forms.ValidationError("Esta atividade já tem um encontro com a mesma data e horário.")
+        return inicio

@@ -57,4 +57,37 @@
     <p class="vazio">Nenhum participante inscrito ainda.</p>
   {% endif %}
 </section>
+
+<section class="cartao" aria-labelledby="titulo-encontros">
+  <h2 id="titulo-encontros">Encontros</h2>
+  <div class="acoes">
+    <a class="botao" href="{% url 'encontro_novo' atividade.pk %}">+ Novo encontro</a>
+  </div>
+
+  {% if encontros %}
+    <div class="tabela-rolagem">
+      <table>
+        <thead>
+          <tr><th scope="col">Data e horário</th><th scope="col">Situação</th><th scope="col">Ações</th></tr>
+        </thead>
+        <tbody>
+          {% for e in encontros %}
+            <tr>
+              <td>{{ e.inicio|date:"d/m/Y H:i" }}</td>
+              <td>{{ e.get_status_display }}</td>
+              <td>
+                <div class="acoes">
+                  <a class="botao secundario" href="{% url 'encontro_editar' e.pk %}">Editar</a>
+                  <a class="botao secundario" href="{% url 'encontro_excluir' e.pk %}">Excluir</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="vazio">Nenhum encontro cadastrado ainda.</p>
+  {% endif %}
+</section>
 {% endblock %}

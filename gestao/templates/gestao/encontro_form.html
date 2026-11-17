@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}{% if encontro.pk %}Editar encontro{% else %}Novo encontro{% endif %}{% endblock %}
+{% block conteudo %}
+<h1>{% if encontro.pk %}Editar encontro{% else %}Novo encontro{% endif %}</h1>
+<p>Atividade: <strong>{{ atividade.nome }}</strong></p>
+<section class="cartao">
+  <form method="post" class="formulario" novalidate>
+    {% csrf_token %}
+    {{ form.as_div }}
+    <div class="acoes">
+      <button type="submit">Salvar</button>
+      <a class="botao secundario" href="{% url 'atividade_detalhe' atividade.pk %}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

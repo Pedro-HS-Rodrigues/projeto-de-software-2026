@@ -20,4 +20,8 @@ urlpatterns = [
     # Inscrições
     path("atividades/<int:atividade_pk>/inscrever/", views.inscricao_criar, name="inscricao_criar"),
     path("inscricoes/<int:pk>/cancelar/", views.inscricao_cancelar, name="inscricao_cancelar"),
+    # Encontros
+    path("atividades/<int:atividade_pk>/encontros/novo/", views.encontro_form, name="encontro_novo"),
+    path("encontros/<int:pk>/editar/", views.encontro_form, name="encontro_editar"),
+    path("encontros/<int:pk>/excluir/", views.encontro_excluir, name="encontro_excluir"),
 ]

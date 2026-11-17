@@ -2,11 +2,12 @@
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from . import services
-from .forms import AtividadeForm, InscricaoForm, ParticipanteForm
-from .models import Atividade, Inscricao, Participante
+from .forms import AtividadeForm, EncontroForm, InscricaoForm, ParticipanteForm
+from .models import Atividade, Encontro, Inscricao, Participante
 
 
 def menu(request):
@@ -69,7 +70,7 @@ def participante_excluir(request, pk):
         else:
             messages.success(request, f"Participante “{participante.nome}” excluído.")
         return redirect("participante_lista")
-    return render(request, "gestao/confirmar_exclusao.html", {"objeto": participante, "voltar": "participante_lista"})
+    return render(request, "gestao/confirmar_exclusao.html", {"objeto": participante, "voltar": reverse("participante_lista")})
 
 
 # ------------------------------------------------------------------ Atividades
@@ -83,6 +84,7 @@ def atividade_detalhe(request, pk):
     contexto = {
         "atividade": atividade,
         "inscricoes": atividade.inscricoes.select_related("participante"),
+        "encontros": atividade.encontros.all(),
         "form_inscricao": InscricaoForm(participantes=services.participantes_disponiveis(atividade)),
     }
     return render(request, "gestao/atividade_detalhe.html", contexto)
@@ -118,7 +120,7 @@ def atividade_excluir(request, pk):
         else:
             messages.success(request, f"Atividade “{atividade.nome}” excluída.")
         return redirect("atividade_lista")
-    return render(request, "gestao/confirmar_exclusao.html", {"objeto": atividade, "voltar": "atividade_lista"})
+    return render(request, "gestao/confirmar_exclusao.html", {"objeto": atividade, "voltar": reverse("atividade_lista")})
 
 
 # ------------------------------------------------------------------ Inscrições
@@ -149,3 +151,35 @@ def inscricao_cancelar(request, pk):
     else:
         messages.success(request, f"Inscrição de {inscricao.participante.nome} cancelada. O histórico foi mantido.")
     return redirect("atividade_detalhe", pk=inscricao.atividade_id)
+
+
+# ------------------------------------------------------------------- Encontros
+
+def encontro_form(request, atividade_pk=None, pk=None):
+    if pk:
+        encontro = get_object_or_404(Encontro.objects.select_related("atividade"), pk=pk)
+        atividade = encontro.atividade
+    else:
+        atividade = get_object_or_404(Atividade, pk=atividade_pk)
+        encontro = Encontro(atividade=atividade)
+
+    form = EncontroForm(request.POST or None, instance=encontro, atividade=atividade)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Encontro salvo.")
+        return redirect("atividade_detalhe", pk=atividade.pk)
+    return render(request, "gestao/encontro_form.html", {"form": form, "atividade": atividade, "encontro": encontro})
+
+
+def encontro_excluir(request, pk):
+    encontro = get_object_or_404(Encontro.objects.select_related("atividade"), pk=pk)
+    atividade_pk = encontro.atividade_id
+    if request.method == "POST":
+        try:
+            encontro.delete()
+        except ProtectedError:
+            messages.error(request, "Este encontro tem presenças registradas e não pode ser excluído.")
+        else:
+            messages.success(request, "Encontro excluído.")
+        return redirect("atividade_detalhe", pk=atividade_pk)
+    return render(request, "gestao/confirmar_exclusao.html", {"objeto": encontro, "voltar": reverse("atividade_detalhe", args=[atividade_pk])})
